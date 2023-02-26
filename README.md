@@ -4,4 +4,5 @@ Needed a way to time a pendulum's period for an experimental physics project, de
 <p align="center">
   <img src="preview.gif" />
 </p>
+A relative measuring error is automatically calculated and the data is stored in results.txt
 Enjoy!
