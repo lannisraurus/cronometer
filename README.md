@@ -4,5 +4,6 @@ Needed a way to time a pendulum's period for an experimental physics project, de
 <p align="center">
   <img src="preview.gif" />
 </p>
-A relative measuring error is automatically calculated and the data is stored in results.txt </br>
+A relative measuring error is automatically calculated (Standard Deviation for N>10, otherwise it takes the greatest deviation). </br>
+The data is stored in results.txt </br>
 Enjoy!
