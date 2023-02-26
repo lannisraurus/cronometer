@@ -28,11 +28,13 @@ SDL_Event ev;
 bool is_open = true;
 bool start_read = false;
 int decimal_places = 4;
+double uncertainty = 0.5;
 int default_lines; //Initial starting point for main text
 
 //Lists of time values
-std::vector<double> times; //The actual times measured since the start of SDL
-std::vector<double> time_intervals; //The measured intervals
+std::vector<int> times;
+std::vector<int> time_intervals; //The actual times measured since the start of SDL
+double average = 0;
 
 //Lists of text
 std::vector<line*> time_gradients; //Lines of text - offset
@@ -91,7 +93,7 @@ void time_it(){
         int gradient = times[times.size()-1]-times[times.size()-2];
         if(gradient > 0){r = 0; g = 255;}
         else if(gradient < 0){ r = 255; g = 0;}
-        else{ r = 255; g = 255; b = 255;}
+        else{ r = 255; g = 255;}
         std::string msg = std::to_string(gradient)+" ms";
         if(gradient>0){
             msg = "+"+msg;
@@ -142,9 +144,31 @@ void start_counting(){
     start_read = true;
 }
 
-//Stops the count and compiles the data
+double get_error(){
+    int N = times.size();
+    double max_deviation = uncertainty;
+    if(N>10){
+        //Standard deviation (larger data sets)
+        double standard_dev;
+        for(int i = 0; i < times.size(); i++){
+            standard_dev += pow(average-times[i],2);
+        }
+        standard_dev/=N;
+        standard_dev=sqrt(standard_dev);
+        if(standard_dev>max_deviation){max_deviation=standard_dev;}
+    }else{
+        //For small data sets
+        for(int i = 0; i < times.size(); i++){
+            double deviation = abs(average-times[i]);
+            if(deviation>max_deviation){max_deviation=deviation;}
+        }
+    }
+    return max_deviation;
+}
+
+//Stops the count and compile the data
 void stop_counting(){
-    double average = 0;
+    average = 0;
     for(int i = 0; i < times.size(); i++){
         average+=times[i];
     }
@@ -153,7 +177,13 @@ void stop_counting(){
     str_stream << std::setprecision(decimal_places) << average;
     std::string iter;
     str_stream >> iter;
-    std::string msg = "Avg: "+iter+" ms";
+
+    str_stream.clear();
+    str_stream << std::setprecision(decimal_places) << get_error();
+    std::string error;
+    str_stream >> error;
+
+    std::string msg = "Avg: "+iter+" +/- "+error+" ms";
     lines.push_back(new line(msg,0,255,255,0));
     start_read = false;
 }
