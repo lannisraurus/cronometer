@@ -166,6 +166,16 @@ double get_error(){
     return max_deviation;
 }
 
+double write_data(std::string average){
+    std::ofstream outFile;
+    outFile.open("results.txt");
+    for(int i = 0; i < times.size(); i++){
+        outFile << std::setprecision(decimal_places) << times[i] << " +/- " << uncertainty << " ms\n";
+    }
+    outFile << average;
+    outFile.close();
+}
+
 //Stops the count and compile the data
 void stop_counting(){
     average = 0;
@@ -184,6 +194,7 @@ void stop_counting(){
     str_stream >> error;
 
     std::string msg = "Avg: "+iter+" +/- "+error+" ms";
+    write_data(msg);
     lines.push_back(new line(msg,0,255,255,0));
     start_read = false;
 }
